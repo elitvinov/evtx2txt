@@ -77,11 +77,6 @@ def get_child(node, tag, ns="{http://schemas.microsoft.com/win/2004/08/events/ev
 
 #####
 
-# convert AID list to human readable Desired Access list
-#TODO watch into accesses list
-def extract_aids(accesses):
-    return accesses
-
 # parse a single file
 def parse_file(file):
     strings_tuples = []
@@ -119,16 +114,16 @@ def parse_file(file):
                     user = data.text
                 elif data.attrib['Name'] == 'SubjectDomainName':
                     domain = data.text
-                elif data.attrib['Name'] == 'SubjectIP': #TODO: find out IP attrib
+                elif data.attrib['Name'] == 'SubjectIP':
                     ip = data.text
-                elif data.attrib['Name'] == 'DesiredAccess ': #TODO: find out Access attrib
+                elif data.attrib['Name'] == 'DesiredAccess ':
                     aids = data.text
                 else:
                     pass
         
             # string assemble:
             string = "\t%s\t%s\t%s\t%s\t%s".expandtabs() % (
-                    path, user, domain, ip, extract_aids(aids)
+                    path, user, domain, ip, aids
                 )
             strings_tuples.append((timestamp, string))
 
@@ -137,10 +132,10 @@ def parse_file(file):
 
 # seek evtx-es in dir, regarging to last parsed file end offset
 # return the dict of { <filename> : [ strings ]}
-#TODO use offset for _recent file only
+#TODO use offset for _last file only
 def parse_dir(scrdir, dstdir, lastfile, offset):
-    # do not parse '*_recent' evtx, beacause it is still filled
-    files = [f for f in listdir(scrdir) if (isfile(join(scrdir, f)) and f.find('_recent') == -1)]
+    # do not parse '*_last' evtx, beacause it is still filled
+    files = [f for f in listdir(scrdir) if (isfile(join(scrdir, f)) and f.find('_last') == -1)]
 
     # filter out files older than lastfile's ctime
     evtxfiles = []
